@@ -1,26 +1,67 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import queryString from 'query-string';
+import { QRCode } from 'react-qr-svg';
+import { GithubPicker } from 'react-color';
+import Slider from 'rc-slider/lib/Slider';
+import 'rc-slider/assets/index.css';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+  constructor() {
+    super();
+    this.qs = queryString.parse(window.location.search);
+    this.state = {
+      size: (this.qs.s === undefined || this.qs.s === null) ? 256 : parseInt(this.qs.s),
+      text: (this.qs.v === undefined || this.qs.v === null) ? 'https://threetinydots.github.io/qr' : decodeURI(this.qs.v),
+      level: 'Q',
+      background: (this.qs.b === undefined || this.qs.b === null) ? '#ffffff' : this.qs.b,
+      foreground: (this.qs.f === undefined || this.qs.f === null) ? '#000000' : this.qs.f
+    };
+    //this.displayEvents = this.displayEvents.bind(this);
+  }
+  render() {
+    return (
+      <Container>
+        <Form>
+          <Form.Group>
+            <Form.Label>text</Form.Label>
+            <Form.Control
+              type="text"
+              defaultValue={this.state.text}
+              onChange={(event) => this.setState({ text: event.target.value })}
+              placeholder="https://threetinydots.github.io/qr" />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>size</Form.Label>
+            <Slider 
+              value={this.state.size}
+              min={100}
+              max={1000}
+              onChange={(size) => this.setState({ size })} />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>background color</Form.Label>
+            <GithubPicker 
+              color={ this.state.background }
+              onChangeComplete={(color) => this.setState({ background: color.hex })} />
+          </Form.Group>
+          <Form.Group>
+            <Form.Label>foreground color</Form.Label>
+            <GithubPicker 
+              color={ this.state.foreground }
+              onChangeComplete={(color) => this.setState({ foreground: color.hex })} />
+          </Form.Group>
+          <QRCode
+            bgColor={this.state.background}
+            fgColor={this.state.foreground}
+            level={this.state.level}
+            style={{ width: this.state.size }}
+            value={this.state.text} />
+        </Form>
+      </Container>
+    );
+  }
 }
 
 export default App;
